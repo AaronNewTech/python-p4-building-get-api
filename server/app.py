@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# server/app.py
 
 from flask import Flask, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
@@ -18,6 +18,47 @@ db.init_app(app)
 @app.route('/')
 def index():
     return "Index for Game/Review/User API"
+
+@app.route('/games')
+def games():
+    # can reorganize data displayed by just changing a few vaiables, these 2 are options I can use then change the 2nd variable in the for loop
+
+    # order games by title
+    # games_by_title = Game.query.order_by(Game.title).all()
+
+    # return a list of first 10 games
+    # first_10_games = Game.query.limit(10).all()
+
+    games = []
+    for game in Game.query.all(): # change the 2nd vaiable here to get different data outputs
+        game_dict = {
+            "title": game.title,
+            "genre": game.genre,
+            "platform": game.platform,
+            "price": game.price,
+        }
+        games.append(game_dict)
+    
+    response = make_response(
+        jsonify(games),
+        200
+    )
+
+    return response
+
+# return game by id entered in route
+@app.route('/games/<int:id>')
+def game_by_id(id):
+    game = Game.query.filter(Game.id == id).first()
+    
+    game_dict = game.to_dict()
+
+    response = make_response(
+        game_dict,
+        200
+    )
+
+    return response
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
